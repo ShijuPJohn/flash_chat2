@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flash_chat2/constants.dart';
+import 'package:flash_chat2/screens/chat_screen.dart';
+import 'package:flash_chat2/widgets/rounded_button.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -9,6 +13,18 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  var controllerEmail = TextEditingController();
+  var controllerPassword = TextEditingController();
+  var authInstance;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    Firebase.initializeApp();
+    authInstance = FirebaseAuth.instance;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +46,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 48.0,
             ),
             TextField(
+              controller: controllerEmail,
               onChanged: (value) {
                 //Do something with the user input.
               },
@@ -40,6 +57,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 8.0,
             ),
             TextField(
+              controller: controllerPassword,
               onChanged: (value) {
                 //Do something with the user input.
               },
@@ -49,25 +67,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             SizedBox(
               height: 24.0,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    //Implement registration functionality.
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Register',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
+            RoundedButton(
+                labelText: 'Register',
+                onPressedFunction: () async {
+                  try {
+                    final user =
+                        await authInstance.createUserWithEmailAndPassword(
+                            email: controllerEmail.text,
+                            password: controllerPassword.text);
+                    if (user != null) {
+                      Navigator.of(context).pushNamed(ChatScreen.id);
+                    }
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                backgroundColor: Colors.blueAccent),
           ],
         ),
       ),
